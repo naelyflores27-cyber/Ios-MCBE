@@ -1,0 +1,41 @@
+name: Build Bedrock Network ESP Lab
+
+"on":
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/build-bedrock-network-esp-lab.yml"
+      - "BedrockNetworkESP_Lab/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Run lab tests
+        run: make -C BedrockNetworkESP_Lab test
+
+      - name: Build arm64 iOS dylib
+        run: sh BedrockNetworkESP_Lab/build_ios.sh
+
+      - name: Record dylib checksum
+        run: |
+          cd BedrockNetworkESP_Lab/build
+          shasum -a 256 BedrockNetworkESP_Lab.dylib > SHA256SUMS
+
+      - name: Upload experimental dylib
+        uses: actions/upload-artifact@v4
+        with:
+          name: bedrock-network-esp-lab-ios-arm64
+          path: |
+            BedrockNetworkESP_Lab/build/BedrockNetworkESP_Lab.dylib
+            BedrockNetworkESP_Lab/build/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,7 @@
+# Diagnostics
+
+The tracker exposes bounded counters in `BNETrackerDiagnostics`: events received, accepted entity updates, removals, rejected events, currently tracked entity count, fresh positioned entity count in a snapshot, incomplete entities without positions, and stale positioned entities. Position source and position-observation time remain distinct from the latest general entity event. Snapshots are copied into caller-owned storage and include publication time and session generation.
+
+Events identify their source (`TEST_FIXTURE`, passive capture, protocol decoder, in-process provider, or server ground truth). Source enum values describe provenance; they do not assert that a producer exists. This build has only fixture observations. The `BNEDataSource` vtable defines initialization, start, state, capabilities, last-error access, and clean shutdown, but no production adapter is implemented.
+
+The native dylib writes short startup/window-attachment status messages through `NSLog`; it does not persist files or export a report. The overlay reports entity-source unavailable, no fresh positions, camera-source unavailable, or viewport mismatch instead of drawing boxes from incomplete state. No session keys, credentials, or packet payloads are written. Decoder errors and transport metadata cannot be reported because no decoder/source exists.
