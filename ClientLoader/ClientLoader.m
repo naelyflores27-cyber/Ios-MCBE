@@ -389,12 +389,7 @@ static UIColor *ClientColor(NSString *hex, CGFloat alpha) {
         ClientLoaderLogStage(@"CL_ERROR", @"registerFeature.rejected", @"Invalid title or callback");
         return;
     }
-    NSIndexSet *existing = [self.features indexesOfObjectsPassingTest:^BOOL(
-    ClientLoaderLogStage(@"CL_BRIDGE", @"registerFeature.success",
-        [NSString stringWithFormat:@"featureCount=%lu restoredValue=%d",
-            (unsigned long)self.features.count, currentValue]);
-    ClientLoaderInvokeJSCallback(callback, @[@(currentValue)],
-        [NSString stringWithFormat:@"registerFeature.initial title=%@", [title substringToIndex:MIN(title.length, 120)]]);
+    NSIndexSet *existing = [self.features indexesOfObjectsPassingTest:^BOOL(NSDictionary *item, __unused NSUInteger idx, __unused BOOL *stop) {
         return [item[@"title"] isEqualToString:title];
     }];
     if (existing.count) [self.features removeObjectsAtIndexes:existing];
@@ -409,6 +404,17 @@ static UIColor *ClientColor(NSString *hex, CGFloat alpha) {
     } mutableCopy];
     [self.features addObject:record];
     [callback callWithArguments:@[@(currentValue)]];
+    NSMutableDictionary *record = [@{
+        @"title": title,
+        @"enabled": @(currentValue),
+        @"callback": callback
+    } mutableCopy];
+    [self.features addObject:record];
+    ClientLoaderLogStage(@"CL_BRIDGE", @"registerFeature.success",
+        [NSString stringWithFormat:@"featureCount=%lu restoredValue=%d",
+            (unsigned long)self.features.count, currentValue]);
+    ClientLoaderInvokeJSCallback(callback, @[@(currentValue)],
+        [NSString stringWithFormat:@"registerFeature.initial title=%@", [title substringToIndex:MIN(title.length, 120)]]);
     ClientMenuRefresh();
 }
 
