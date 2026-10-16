@@ -8,6 +8,7 @@ name: Build Bedrock Network ESP Lab
     paths:
       - ".github/workflows/build-bedrock-network-esp-lab.yml"
       - "BedrockNetworkESP_Lab/**"
+      - "ClientLoader/**"
 
 permissions:
   contents: read
@@ -22,13 +23,48 @@ jobs:
       - name: Run lab tests
         run: make -C BedrockNetworkESP_Lab test
 
+      - name: Run ClientLoader packaging tests
+        run: python3 -m unittest discover -s ClientLoader -p 'test_*.py' -v
+
+      - name: Build diagnostic ClientLoader without replacing source artifact
+        run: |
+          CL_OUTPUT_PATH="$GITHUB_WORKSPACE/BedrockNetworkESP_Lab/build/ClientLoader-diagnostic.dylib" \
+            sh ClientLoader/build.sh
+
       - name: Build arm64 iOS dylib
         run: sh BedrockNetworkESP_Lab/build_ios.sh
+
+      - name: Bind companion loader into build manifest
+        run: |
+          python3 BedrockNetworkESP_Lab/tools/write_build_manifest.py \
+            --dylib BedrockNetworkESP_Lab/build/BedrockNetworkESP_Lab.dylib \
+            --client-loader BedrockNetworkESP_Lab/build/ClientLoader-diagnostic.dylib \
+            --expected-esp-script ClientLoader/scripts/esp_test.js \
+            --revision "$GITHUB_SHA" \
+            --built-at "$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            --expected-game-build "1.26.33.01" \
+            --output BedrockNetworkESP_Lab/build/BuildManifest.json
 
       - name: Record dylib checksum
         run: |
           cd BedrockNetworkESP_Lab/build
-          shasum -a 256 BedrockNetworkESP_Lab.dylib > SHA256SUMS
+          shasum -a 256 BedrockNetworkESP_Lab.dylib ClientLoader-diagnostic.dylib BuildManifest.json > SHA256SUMS
+
+      - name: Package complete diagnostic lab source and binaries
+        run: |
+          zip -qr BedrockNetworkESP_Lab/build/BedrockNetworkESP_Lab-Complete.zip \
+            BedrockNetworkESP_Lab \
+            .github/workflows/build-bedrock-network-esp-lab.yml \
+            ClientLoader/ClientLoader.m \
+            ClientLoader/build.sh \
+            ClientLoader/providers \
+            ClientLoader/scripts/esp_test.js \
+            -x 'BedrockNetworkESP_Lab/build/BedrockNetworkESP_Lab-Complete.zip' \
+               'BedrockNetworkESP_Lab/build/test_*' \
+               'BedrockNetworkESP_Lab/**/__pycache__/*' \
+               'BedrockNetworkESP_Lab/**/__pycache__/**'
+          shasum -a 256 BedrockNetworkESP_Lab/build/BedrockNetworkESP_Lab-Complete.zip \
+            > BedrockNetworkESP_Lab/build/ZIP_SHA256SUMS
 
       - name: Upload experimental dylib
         uses: actions/upload-artifact@v4
@@ -36,6 +72,10 @@ jobs:
           name: bedrock-network-esp-lab-ios-arm64
           path: |
             BedrockNetworkESP_Lab/build/BedrockNetworkESP_Lab.dylib
+            BedrockNetworkESP_Lab/build/ClientLoader-diagnostic.dylib
+            BedrockNetworkESP_Lab/build/BuildManifest.json
             BedrockNetworkESP_Lab/build/SHA256SUMS
+            BedrockNetworkESP_Lab/build/BedrockNetworkESP_Lab-Complete.zip
+            BedrockNetworkESP_Lab/build/ZIP_SHA256SUMS
           if-no-files-found: error
           retention-days: 14

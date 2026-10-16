@@ -1,13 +1,13 @@
 # Project Isolation
 
-**Verified:** this experiment lives only in `BedrockNetworkESP_Lab/`. No original file was edited, copied over, renamed, or used as an output target. The original workspace was already dirty at inspection: existing project files and archives were untracked by Git, so Git status alone cannot establish their prior contents.
+**Verified:** experimental files and build outputs live in `BedrockNetworkESP_Lab/`. Per the diagnostic request, source-only instrumentation was added to `ClientLoader/ClientLoader.m`, `ClientLoader/build.sh`, `CLDiagnostics`, and `CLESPOverlay`; the existing menu, feature names, callbacks, and default behaviors are retained. The existing `ClientLoader.dylib`, Minecraft app executable, and 3105 files were not edited or overwritten. The original `ClientLoader.zip` and dylib remain unchanged baselines.
 
-**Verified:** SHA-256 digests for the inspected originals and archives were recorded in `tools/original_files.sha256`. From this directory, verify them with:
+**Verified:** immutable original/binary/archive SHA-256 values are in `tools/original_files.sha256`; intentional diagnostic source changes are tracked separately in `tools/diagnostic_sources.sha256`. From this directory, verify both with:
 
 ```sh
 sh tools/verify_originals.sh
 ```
 
-The checksum manifest includes the existing ClientLoader dylib, loader and packager source/tests, provider files, 3105 settings/plist/script/encrypted patch wrapper, source archives, and supplied app metadata/executable. Verification is read-only. `git status --short` from the workspace root should show the lab directory as new/untracked; it should not show edits within the original files.
+Verification is read-only. `git status --short` should show intended ClientLoader source edits and the lab/workflow changes; the existing `ClientLoader.dylib`, app executable, 3105 payloads, and source archive remain unchanged.
 
-The iOS build writes only to this directory's `build/`. The IPA tool reads the original app and `ClientLoader.dylib`, stages both in a temporary copy, and writes a new output IPA; it refuses to overwrite an existing output. It never writes to `ClientLoader/`, `3105/`, `Payload/`, or `Minecraft-2.3105`. Delete this directory to remove the experiment; retain the original paths and their prior checksums.
+The lab build writes only to this directory's `build/`. The diagnostic ClientLoader build is configured with `CL_OUTPUT_PATH` to write its output into that same build directory rather than replacing `ClientLoader/ClientLoader.dylib`. The IPA tool stages both libraries and a copy of the app into a new output IPA and refuses to overwrite existing output. It does not modify `3105/`, `Payload/`, or `Minecraft-2.3105`. Reinstall the original app and dylib to roll back the diagnostic package.

@@ -7,3 +7,7 @@ No packet capture or packet library compatibility test exists in the workspace. 
 The existing static-analysis report finds compiled Script API and ECS/camera-related names, but explicitly does not establish callable APIs, layouts, pointers, or a live camera matrix. Existing loader JavaScript runs in a separate `JSContext` and the supplied diagnostic found no exposed entity/camera bridge methods. These facts do not determine whether a controlled packet capture can be decoded.
 
 Next evidence needed: an authorized, non-sensitive capture of a controlled session paired with exact app/protocol versions and independent entity ground truth. Do not include authentication/session secrets. If payloads cannot be legitimately decoded, record that outcome and stop treating packet size/transport metadata as entity state.
+
+## Supplied 3105 menu and Unity asset
+
+The supplied menu is an encrypted schema-9 `3105PATCH` binary-plist package. The provided password was tried against metadata-derived PBKDF2/AES-GCM layouts, but no authentication tag validated; thus no script was extracted. The companion asset is UnityFS 2022.3.47f1 with UMA-related MonoScript/MonoBehaviour objects and no TextAssets. Details and exact counts are in [`3105_sample_findings.md`](3105_sample_findings.md). Neither file provides Bedrock protocol evidence.

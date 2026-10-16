@@ -3,6 +3,8 @@ import sys
 import tempfile
 import unittest
 import zipfile
+import hashlib
+import json
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
@@ -12,6 +14,7 @@ from package_experimental_ipa import (  # noqa: E402
     EXPERIMENTAL_LOADER_NAME,
     make_experimental_ipa,
 )
+from write_build_manifest import write_manifest  # noqa: E402
 
 MH_MAGIC_64 = 0xFEEDFACF
 CPU_TYPE_ARM64 = 0x0100000C
@@ -87,6 +90,35 @@ class ExperimentalPackageTests(unittest.TestCase):
                     "@executable_path/Frameworks/" + CLIENT_LOADER_NAME,
                     EXPERIMENTAL_INSTALL_NAME,
                 ],
+            )
+
+    def test_build_manifest_binds_source_revision_to_dylib_hash(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            dylib = root / "BedrockNetworkESP_Lab.dylib"
+            dylib.write_bytes(b"synthetic arm64 dylib fixture")
+            client_loader = root / "ClientLoader-diagnostic.dylib"
+            client_loader.write_bytes(b"synthetic diagnostic loader fixture")
+            expected_script = root / "esp_test.js"
+            expected_script.write_text("ClientMenu.registerFeature();\n", encoding="utf-8")
+            manifest_path = root / "BuildManifest.json"
+            write_manifest(dylib, "abc123", "2026-10-16T00:00:00Z",
+                           "1.26.33.01", manifest_path, client_loader, expected_script)
+
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertEqual(manifest["sourceRevision"], "abc123")
+            self.assertEqual(
+                manifest["artifactSHA256"], hashlib.sha256(dylib.read_bytes()).hexdigest()
+            )
+            self.assertEqual(manifest["targetArchitecture"], "arm64")
+            self.assertFalse(manifest["expectedBuildIsDeviceVerified"])
+            self.assertEqual(
+                manifest["companionDiagnosticLoader"]["artifactSHA256"],
+                hashlib.sha256(client_loader.read_bytes()).hexdigest(),
+            )
+            self.assertEqual(
+                manifest["expectedESPTestScriptSHA256"],
+                hashlib.sha256(expected_script.read_bytes()).hexdigest(),
             )
 
 

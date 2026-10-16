@@ -7,9 +7,10 @@
 | Installed iPhone app/device | **Unknown:** no device query/report |
 | Negotiated Bedrock protocol | **Unknown:** no session handshake/capture |
 | Passive packet decoding | **Unknown / not implemented** |
-| Lab iOS dylib build in this host | **Blocked:** no `xcrun` or iPhoneOS SDK |
-| Lab native loader/overlay source | **Implemented, not device-tested:** arm64 dylib configured for iOS 15.0; requires signing and actual device validation |
+| Current paired diagnostic iOS build in this host | **Blocked:** no `xcrun` or iPhoneOS SDK; hosted build still required |
+| Previous downloaded lab dylib | **Verified:** Mach-O arm64 build from an earlier source revision; it contains no current diagnostics and was reported nonworking on device |
+| Current native loader/overlay diagnostic source | **Implemented, not compiled/device-tested yet:** arm64/iOS 15.0 build targets; requires paired Actions build, signing, and device validation |
 | Camera source and live in-game boxes | **Unavailable:** camera adapter and live entity producer are not implemented |
 | 3105 native-dylib loading | **Unverified/not supported by evidence:** local patch contains only app Documents data, no loader or dylib path |
 
-Do not apply packet layouts, server API versions, private structures, or offsets based on the app version alone. The supplied `MCPE-iOS-26.33-universal.zip` is empty; the extracted payload is the only local binary evidence. Any future production source must fail closed on unsupported version/protocol rather than silently decode with stale assumptions.
+Do not apply packet layouts, server API versions, private structures, or offsets based on the app version alone. The supplied `MCPE-iOS-26.33-universal.zip` is empty; the extracted payload is the only local Minecraft binary evidence. The supplied menu wrapper remains encrypted; its UnityFS companion reports Unity 2022.3.47f1 and UMA asset classes, not Bedrock compatibility. Any future production source must fail closed on unsupported version/protocol rather than silently decode with stale assumptions.
