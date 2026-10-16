@@ -24,7 +24,7 @@ The output is `BedrockNetworkESP_Lab/build/BedrockNetworkESP_Lab.dylib`, with in
 
 **Verified by source inspection:** `ClientLoader/build.sh` invokes `xcrun --sdk iphoneos clang`, targets `-arch arm64`, uses `-miphoneos-version-min=15.0`, Objective-C ARC, and emits a dynamic library linked against Foundation, CoreGraphics, QuartzCore, UIKit, and JavaScriptCore. Existing bundled dylib is arm64. **Blocked in this host:** `xcrun` and the iPhoneOS SDK are absent, so no iOS dylib was built here.
 
-The experimental IPA packager reads the existing `ClientLoader/package_ipa.py` Mach-O helper but writes only a new output IPA and temporary staging files under that output directory. It requires the original `ClientLoader.dylib` as an input and refuses to overwrite an existing IPA. It does not change original settings, sign an app, or install on a device.
+The experimental IPA packager is self-contained and writes only a new output IPA and temporary staging files under that output directory. It takes `ClientLoader.dylib` as a binary input and refuses to overwrite an existing IPA. It does not import or change ClientLoader source, sign an app, or install on a device.
 
 After building on macOS/Xcode, stage a new unsigned package with:
 

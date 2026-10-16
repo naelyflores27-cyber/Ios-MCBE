@@ -13,8 +13,8 @@
 | `ClientLoader/providers/CLESPOverlay.m` | Snapshot-driven UIKit renderer | `f62e7bf80a448afc5de8b672207bb238083dded9dd07e14469a017aea0b2b6a8` |
 | `ClientLoader/scripts/esp_test.js` | Synthetic/live toggles and diagnostics action | `c733b58b9299e69031a326d2102c596882ffe12e2653c3ed5e0c98f9e54d30bc` |
 | `ClientLoader/ClientLoader.dylib` | Existing arm64 dylib | `4d09d14053bda35232fbd097ebfb58b66e2a42013f870ca5387d10040ee7049a` |
-| `ClientLoader/package_ipa.py` | Existing arm64 Mach-O load-command and IPA staging helper reused by lab | `0303d838624a6e133a9537eff862f0257403f89e1c321e5b4589bfe5f285a52f` |
-| `ClientLoader/test_package_ipa.py` | Existing helper tests | `178d8adaeab46c2d28b88dfe0d87d59ef553e8ffbda56569b89aaac603db4c5a` |
+| `ClientLoader/package_ipa.py` | Inspected as existing load-command implementation; lab no longer imports it | `0303d838624a6e133a9537eff862f0257403f89e1c321e5b4589bfe5f285a52f` |
+| `ClientLoader/test_package_ipa.py` | Existing packaging tests inspected; separate lab tests exercise the lab packager | `178d8adaeab46c2d28b88dfe0d87d59ef553e8ffbda56569b89aaac603db4c5a` |
 | `3105/Patches/Minecraft/settings.json` | 3105 patch workspace settings | `a2e8f7e85a1cb4c95d3837982cbf97e12e442eb29f8785127851cd875f46043d` |
 | `3105/Patches/Minecraft/.3105-project.plist` | Binary plist: schema 4, project ID, display name only | `c571057bb287753b63809310d9eb71b6e1b6224eb0954ca666c71f6b917c697d` |
 | `3105/Patches/Minecraft/3105-project-example.plist.txt` | Explicitly speculative format example | `862c4e7f2c8e29e20a85719d3fab28f53e8947bdc97d12a7889d67152340b2f9` |
@@ -44,5 +44,5 @@ The 3105 patch metadata does not establish the installed app version. The encryp
 - `native/ESPOverlay.*`: touch-through overlay, fresh entity/camera gating, exact type filtering, max distance, labels, and provisional bounds.
 - `native/CameraDataSource.*`, `native/WorldToScreen.h`: validated camera snapshot publication and projection adapter; no game camera producer.
 - `src/entity/BNEEntityTracker.*`, `BNEEntitySnapshotProvider.*`, `src/projection/BNEProjection.*`, `src/common/BNEClock.*`: normalized event tracker, synchronized snapshots, projection, and monotonic clock.
-- `tools/package_experimental_ipa.py`: stages the existing ClientLoader and a distinct lab dylib using the original packager's Mach-O helper.
+- `tools/package_experimental_ipa.py`, `tools/bne_macho.py`: self-contained package staging and arm64 Mach-O load-command helpers; existing ClientLoader is only a binary input.
 - `build_ios.sh`: arm64/iOS 15 dylib build target; not executable on the current Linux host.

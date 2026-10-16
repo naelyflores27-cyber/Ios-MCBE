@@ -11,10 +11,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-WORKSPACE = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(WORKSPACE / "ClientLoader"))
-
-from package_ipa import add_dylib_load_command, validate_loader  # noqa: E402
+from bne_macho import add_dylib_load_command, validate_loader
 
 CLIENT_LOADER_NAME = "ClientLoader.dylib"
 EXPERIMENTAL_LOADER_NAME = "BedrockNetworkESP_Lab.dylib"
