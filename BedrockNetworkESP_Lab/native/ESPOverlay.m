@@ -2,6 +2,7 @@
 
 #import "Diagnostics.h"
 #import "WorldToScreen.h"
+#import "../src/common/BNEClock.h"
 #import <math.h>
 
 static const uint64_t kBNEFreshnessLimitMilliseconds = 1000;
